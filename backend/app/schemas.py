@@ -22,6 +22,7 @@ class UserLogin(BaseModel):
     password: str
 
 class LoginResponse(BaseModel):
-    message: str
+    access_token: str
+    token_type: str
     user_id: int
     is_superuser: bool
