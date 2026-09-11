@@ -10,11 +10,11 @@ class Base(DeclarativeBase):
 
 engine = create_async_engine(DATABASE_URL, echo=False)
 
-AsynSessionLocal = async_sessionmaker(
+AsyncSessionLocal = async_sessionmaker(
     engine,
     expire_on_commit=False,
 )
 
 async def get_async_session():
-    async with AsynSessionLocal() as session:
+    async with AsyncSessionLocal() as session:
         yield session
