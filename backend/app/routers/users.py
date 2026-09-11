@@ -1,12 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm
 from typing import List
 from typing_extensions import Annotated
+from datetime import timedelta
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from app.database import get_async_session
 from app.models import User
 from app.schemas import UserCreate, UserOut, UserLogin, LoginResponse
+from app.auth import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter(
     prefix="/users",
@@ -57,11 +60,33 @@ async def get_user(user_id: int, session: session_dependency):
     return user
 
 @router.post("/login", response_model=LoginResponse)
-async def login_user(user_login: UserLogin, session: session_dependency):
-    user_details = select(User).where(User.username == user_login.username)
+async def login_user(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: session_dependency
+):
+    """ 
+    Login with username and password
+    Retures a JWT token to use in the Authorization header.
+    """
+
+    user_details = select(User).where(User.username == form_data.username)
     user = await session.scalar(user_details)
-    if not user or not user.verify_password(user_login.password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
+    if not user or not user.verify_password(form_data.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Invalid username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User account is inactive")
-    return {"message": "Login successful", "user_id": user.id, "is_superuser": user.is_superuser}
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": str(user.id)}, expires_delta=access_token_expires
+    )
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user_id": user.id,
+        "is_superuser": user.is_superuser
+    }
