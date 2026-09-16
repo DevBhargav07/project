@@ -1,7 +1,7 @@
 import hashlib
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Integer, ForeignKey, DateTime, func
+from sqlalchemy import String, Integer, ForeignKey, DateTime, func, Text
 from datetime import datetime
 from typing import List, Optional
 from app.database import Base
@@ -32,4 +32,39 @@ class User(Base):
         prehash = hashlib.sha256(password.encode()).hexdigest()
         return pwd_context.hash(prehash)
 
-    
+#---------------------------------- Permission Table ---------------------------------
+class Permission(Base):
+    __tablename__ = "permissions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    model_name: Mapped[str] = mapped_column(String(100))
+    codename: Mapped[str] = mapped_column(String(100), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(255))
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+#---------------------------------- Groups Table ---------------------------------
+class Group(Base):
+    __tablename__ = "groups"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(150), unique=True, index=True)
+
+#---------------------------------- User Group Table ---------------------------------
+class UserGroup(Base):
+    __tablename__ = "user_groups"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"), primary_key=True)
+
+#---------------------------------- Group Permissions Table -------------------------------
+class GroupPermission(Base):
+    __tablename__ = "group_permissions"
+
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"), primary_key=True)
+    permission_id: Mapped[int] = mapped_column(ForeignKey("permissions.id"), primary_key=True)
+#---------------------------------- User Permissions Table ---------------------------------
+class UserPermission(Base):
+    __tablename__ = "user_permissions"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    permission_id: Mapped[int] = mapped_column(ForeignKey("permissions.id"), primary_key=True)
