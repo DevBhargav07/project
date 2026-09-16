@@ -12,3 +12,6 @@ wheels/
 *.env
 .lock
 *.lock
+
+#alembic versions
+versions/
