@@ -96,24 +96,23 @@ def require_permission_(codename: str):
 
 
 #---------------------- AutoGenerating CRUD Permissions ----------------------------------------
-
 async def ensure_crud_permissions(session: AsyncSession):
     """
     Scan all models and create default CRUD permissions.
     Call this once on app startup.
     """
-    # System tables to skip
     system_tables = {
-        "users", "permissions", "groups",
         "user_groups", "group_permissions", "user_permissions",
     }
-    
-    # Get all mapped models
+
+    # Public, stable API — every mapper registered against Base
     models = [
-        cls for cls in Base.registry._class_registry.values()
-        if hasattr(cls, "__tablename__") and cls.__tablename__ not in system_tables
+        mapper.class_
+        for mapper in Base.registry.mappers
+        if mapper.class_.__tablename__ not in system_tables
     ]
-    
+
+    created_count = 0
     for model in models:
         table_name = model.__tablename__
         actions = [
@@ -122,14 +121,10 @@ async def ensure_crud_permissions(session: AsyncSession):
             ("change", f"Can change {table_name}"),
             ("delete", f"Can delete {table_name}"),
         ]
-        
         for action, name in actions:
             codename = f"{action}_{table_name}"
-            
-            # Skip if already exists
             exists_stmt = select(Permission).where(Permission.codename == codename)
             existing = await session.scalar(exists_stmt)
-            
             if not existing:
                 perm = Permission(
                     model_name=table_name,
@@ -137,6 +132,7 @@ async def ensure_crud_permissions(session: AsyncSession):
                     name=name,
                 )
                 session.add(perm)
-    
-    await session.commit()
-    print("CRUD permissions ensured for all models.")
+                created_count += 1
+
+    await session.commit()  # commit once, outside the loop
+    print(f"CRUD permissions ensured for {len(models)} models — {created_count} new permissions created.")
