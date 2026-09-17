@@ -15,3 +15,8 @@ wheels/
 
 #alembic versions
 versions/
+
+# not adding the .db
+test.db
+*.db
+*.sqlite3
