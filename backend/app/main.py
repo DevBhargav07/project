@@ -3,6 +3,7 @@ from app.routers import users
 from contextlib import asynccontextmanager
 from app.auth.permissions import ensure_crud_permissions
 from app.database import engine, Base
+from app.models import (Base, User, Permission, Group, UserGroup, GroupPermission, UserPermission)
 
 
 @asynccontextmanager
