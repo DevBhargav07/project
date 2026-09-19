@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 
@@ -14,9 +14,17 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
-      <div className="navbar-brand">MyApp</div>
+      <div className="navbar-brand">&gt;_ MyApp</div>
+      <div className="navbar-links">
+        <Link to="/dashboard" className="navbar-link">
+          Dashboard
+        </Link>
+        <Link to="/users" className="navbar-link">
+          Users
+        </Link>
+      </div>
       <div className="navbar-right">
-        <span className="navbar-user">Hi, {username || "User"}</span>
+        <span className="navbar-user">{username || "User"}</span>
         <button className="navbar-btn" onClick={handleLogout}>
           Logout
         </button>
