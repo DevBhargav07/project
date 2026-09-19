@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { registerUser } from "../api/auth";
+import MatrixRain from "../components/MatrixRain";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -79,8 +80,9 @@ export default function Register() {
 
   return (
     <div className="auth-page">
+      <MatrixRain />
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h2>Create Account</h2>
+        <h2>&gt; REGISTER_</h2>
 
         <div className="form-group">
           <label>Username</label>
