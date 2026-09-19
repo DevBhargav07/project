@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { loginUser } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
+import MatrixRain from "../components/MatrixRain";
 
 export default function Login() {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -54,8 +55,9 @@ export default function Login() {
 
   return (
     <div className="auth-page">
+      <MatrixRain />
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h2>Login</h2>
+        <h2>&gt; LOGIN_</h2>
 
         <div className="form-group">
           <label>Username</label>
