@@ -52,12 +52,12 @@ async def get_users(session: session_dependency, skip: int = 0, limit: int = 30)
     users = result.all()
     return [UserOut.model_validate(user) for user in users]
 
-@router.get("/{user_id}", response_model=UserOut)
-async def get_user(user_id: int, session: session_dependency):
-    user = await session.scalar(select(User).where(User.id == user_id))
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return user
+# @router.get("/{user_id}", response_model=UserOut)
+# async def get_user(user_id: int, session: session_dependency):
+#     user = await session.scalar(select(User).where(User.id == user_id))
+#     if not user:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+#     return user
 
 @router.post("/login", response_model=LoginResponse)
 async def login_user(
