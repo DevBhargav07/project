@@ -5,33 +5,55 @@
 }
 
 body {
-  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: "Consolas", "Courier New", monospace;
+  background: #000000;
   min-height: 100vh;
+  color: #c8ffd4;
+}
+
+/* ---------- Matrix rain background canvas ---------- */
+.matrix-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: #000;
 }
 
 /* ---------- Auth pages (Login/Register) ---------- */
 .auth-page {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overflow: hidden;
 }
 
 .auth-card {
-  background: #ffffff;
+  position: relative;
+  z-index: 1;
+  background: rgba(5, 15, 8, 0.82);
   width: 100%;
   max-width: 400px;
   padding: 36px 32px;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 255, 120, 0.25);
+  box-shadow: 0 0 24px rgba(0, 255, 120, 0.12),
+    inset 0 0 40px rgba(0, 255, 120, 0.03);
+  backdrop-filter: blur(2px);
 }
 
 .auth-card h2 {
   text-align: center;
   margin-bottom: 24px;
-  color: #333;
+  color: #6dffa0;
+  letter-spacing: 2px;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(0, 255, 120, 0.4);
 }
 
 .form-group {
@@ -41,23 +63,33 @@ body {
 .form-group label {
   display: block;
   margin-bottom: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: #444;
+  color: #6dffa0;
+  letter-spacing: 0.5px;
+  opacity: 0.85;
 }
 
 .form-group input {
   width: 100%;
   padding: 11px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background: rgba(0, 20, 8, 0.6);
+  border: 1px solid rgba(0, 255, 120, 0.25);
+  border-radius: 4px;
   font-size: 14px;
+  font-family: inherit;
+  color: #c8ffd4;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input::placeholder {
+  color: rgba(200, 255, 212, 0.35);
 }
 
 .form-group input:focus {
-  border-color: #764ba2;
+  border-color: rgba(0, 255, 120, 0.7);
+  box-shadow: 0 0 10px rgba(0, 255, 120, 0.25);
 }
 
 .password-wrapper {
@@ -77,40 +109,45 @@ body {
   cursor: pointer;
   font-size: 16px;
   user-select: none;
+  opacity: 0.8;
 }
 
 .submit-btn {
   width: 100%;
   padding: 12px;
   margin-top: 8px;
-  background: #764ba2;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
+  background: rgba(0, 255, 120, 0.12);
+  color: #6dffa0;
+  border: 1px solid rgba(0, 255, 120, 0.5);
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
   font-weight: 600;
+  letter-spacing: 1px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, box-shadow 0.2s;
+  text-transform: uppercase;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: #5f3d85;
+  background: rgba(0, 255, 120, 0.22);
+  box-shadow: 0 0 14px rgba(0, 255, 120, 0.3);
 }
 
 .submit-btn:disabled {
-  background: #b3a0c9;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .switch-link {
   text-align: center;
   margin-top: 18px;
-  font-size: 14px;
-  color: #555;
+  font-size: 13px;
+  color: rgba(200, 255, 212, 0.6);
 }
 
 .switch-link a {
-  color: #764ba2;
+  color: #6dffa0;
   font-weight: 600;
   text-decoration: none;
 }
@@ -124,15 +161,38 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
+  background: rgba(5, 15, 8, 0.95);
   padding: 14px 28px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(0, 255, 120, 0.2);
+  box-shadow: 0 2px 12px rgba(0, 255, 120, 0.08);
+  position: relative;
+  z-index: 1;
 }
 
 .navbar-brand {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: #764ba2;
+  color: #6dffa0;
+  letter-spacing: 1px;
+  text-shadow: 0 0 6px rgba(0, 255, 120, 0.4);
+}
+
+.navbar-links {
+  display: flex;
+  gap: 20px;
+}
+
+.navbar-link {
+  color: rgba(200, 255, 212, 0.75);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+
+.navbar-link:hover {
+  color: #6dffa0;
+  text-shadow: 0 0 6px rgba(0, 255, 120, 0.4);
 }
 
 .navbar-right {
@@ -142,40 +202,80 @@ body {
 }
 
 .navbar-user {
-  font-size: 14px;
-  color: #444;
+  font-size: 13px;
+  color: rgba(200, 255, 212, 0.6);
 }
 
 .navbar-btn {
   padding: 8px 16px;
-  background: #764ba2;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
+  background: rgba(0, 255, 120, 0.1);
+  color: #6dffa0;
+  border: 1px solid rgba(0, 255, 120, 0.4);
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  transition: background 0.2s;
 }
 
 .navbar-btn:hover {
-  background: #5f3d85;
+  background: rgba(0, 255, 120, 0.2);
 }
 
 /* ---------- Page content ---------- */
+body:has(.navbar) {
+  background: #000;
+}
+
 .page-content {
-  max-width: 800px;
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
   margin: 60px auto;
-  background: #fff;
+  background: rgba(5, 15, 8, 0.7);
   padding: 40px;
-  border-radius: 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 255, 120, 0.2);
   text-align: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(0, 255, 120, 0.08);
 }
 
 .page-content h1 {
-  margin-bottom: 12px;
-  color: #333;
+  margin-bottom: 16px;
+  color: #6dffa0;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(0, 255, 120, 0.35);
 }
 
 .page-content p {
-  color: #666;
+  color: rgba(200, 255, 212, 0.7);
+}
+
+/* ---------- Users table ---------- */
+.users-table {
+  width: 100%;
+  margin-top: 24px;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: left;
+}
+
+.users-table th,
+.users-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 255, 120, 0.15);
+  color: rgba(200, 255, 212, 0.85);
+}
+
+.users-table th {
+  color: #6dffa0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.users-table tr:hover td {
+  background: rgba(0, 255, 120, 0.04);
 }
