@@ -22,3 +22,11 @@ export const registerUser = (username, email, password) => {
   // isn't part of the OAuth2 spec, so you control the shape).
   return api.post("/auth/register", { username, email, password });
 };
+
+// Fetches the list of all users. Requires a valid JWT — the axios
+// interceptor in ./axios.js attaches it automatically.
+// Expected response: an array like
+// [{ id: 1, username: "neo", email: "neo@zion.io" }, ...]
+export const getAllUsers = () => {
+  return api.get("/users/");
+};
