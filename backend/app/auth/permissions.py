@@ -136,3 +136,81 @@ async def ensure_crud_permissions(session: AsyncSession):
 
     await session.commit()  # commit once, outside the loop
     print(f"CRUD permissions ensured for {len(models)} models — {created_count} new permissions created.")
+
+#-------------------------- AutoGenerating Groups ---------------------------------------
+async def ensure_default_groups(session: AsyncSession):
+    """
+    Create default groups and assign permissions automatically.
+    Idempotent: safe to run on every startup 
+    """
+    admin_group = await session.scalar(
+        select(Group).where(Group.name=="Admin")
+    )
+
+    if not admin_group:
+        admin_group = Group(name="Admin")
+        session.add(admin_group)
+        await session.flush()
+        print("[GRANT] Created 'Admin' group")
+
+    operator_group = await session.scalar(
+        select(Group).where(Group.name=="Operator")
+    )
+
+    if not operator_group:
+        operator_group = Group(name="Operator")
+        session.add(operator_group)
+        session.flush()
+        print("[GRANT] Created 'Operator' group")
+
+    all_perms = await session.scalars(select(Permission))
+    for perm in all_perms:
+        exists = await session.scalar(
+            select(GroupPermission).where(
+                GroupPermission.group_id == admin_group.id,
+                GroupPermission.permission_id == perm.id
+            )
+        )
+        if not exists:
+            session.add(GroupPermission(
+                group_id=admin_group.id,
+                permission_id= perm.id
+            ))
+    operator_perms = await session.scalars(
+        select(Permission).where(
+            Permission.codename.notlike("delete_%")
+        )
+    )
+    for perm in operator_perms:
+        exists = await session.scalar(
+            select(GroupPermission).where(
+                GroupPermission.group_id == operator_group.id,
+                GroupPermission.permission_id == perm.id,
+            )
+        )
+        if not exists:
+            session.add(GroupPermission(
+                group_id=operator_group.id,
+                permission_id=perm.id,
+            ))
+    
+    await session.commit()
+    print("[Groups] Permissions assigned to default groups.")
+
+    first_superuser = await session.scalar(
+        select(User).where(User.is_superuser == True).order_by(User.id.asc())
+    )
+    if first_superuser:
+        in_admin = await session.scalar(
+            select(UserGroup).where(
+                UserGroup.user_id == first_superuser.id,
+                UserGroup.group_id == admin_group.id,
+            )
+        )
+        if not in_admin:
+            session.add(UserGroup(
+                user_id=first_superuser.id,
+                group_id=admin_group.id,
+            ))
+            await session.commit()
+            print(f"[Groups] Assigned '{first_superuser.username}' to Admin group.")
