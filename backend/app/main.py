@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.routers import users
 from contextlib import asynccontextmanager
-from app.auth.permissions import ensure_crud_permissions
+from app.auth.permissions import ensure_crud_permissions, ensure_default_groups
 from app.database import engine, Base
 
 
@@ -13,6 +13,7 @@ async def lifespan(app: FastAPI):
     from app.database import AsyncSessionLocal
     async with AsyncSessionLocal() as session:
         await ensure_crud_permissions(session)
+        await ensure_default_groups(session)
 
     yield
     await engine.dispose()
