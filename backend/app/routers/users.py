@@ -12,14 +12,14 @@ from app.schemas import UserCreate, UserOut, UserLogin, LoginResponse
 from app.auth.auth import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter(
-    prefix="/users",
-    tags=["users"],
+    prefix="/auth",
+    tags=["auth"],
 )
 
 session_dependency = Annotated[AsyncSession, Depends(get_async_session)]
 
 
-@router.post("/", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 async def create_user(user_create: UserCreate, session: session_dependency):
     # checking email exists
     user_details = select(User).where(User.email == user_create.email)
