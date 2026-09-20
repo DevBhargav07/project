@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { loginUser } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
@@ -10,8 +10,20 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // If they're already logged in and land on /login (e.g. typed the URL,
+  // or clicked back), bounce them straight to the dashboard.
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // Where were they trying to go before being sent here? Set by
+  // ProtectedRoute.jsx. Falls back to /dashboard if they just came
+  // straight to /login normally.
+  const redirectTo = location.state?.from || "/dashboard";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -41,7 +53,7 @@ export default function Login() {
       });
 
       toast.success("Logged in successfully!");
-      navigate("/dashboard");
+      navigate(redirectTo, { replace: true });
     } catch (error) {
       const message =
         error.response?.data?.detail ||
