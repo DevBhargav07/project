@@ -12,23 +12,23 @@ export default function Navbar() {
     navigate("/login");
   };
 
-  return (
-    <nav className="navbar">
-      <div className="navbar-brand">&gt;_ MyApp</div>
-      <div className="navbar-links">
-        <Link to="/dashboard" className="navbar-link">
-          Dashboard
-        </Link>
-        <Link to="/users" className="navbar-link">
-          Users
-        </Link>
-      </div>
-      <div className="navbar-right">
-        <span className="navbar-user">{username || "User"}</span>
-        <button className="navbar-btn" onClick={handleLogout}>
-          Logout
-        </button>
-      </div>
-    </nav>
-  );
+  // return (
+  //   <nav className="navbar">
+  //     <div className="navbar-brand">&gt;_ MyApp</div>
+  //     <div className="navbar-links">
+  //       <Link to="/dashboard" className="navbar-link">
+  //         Dashboard
+  //       </Link>
+  //       <Link to="/users" className="navbar-link">
+  //         Users
+  //       </Link>
+  //     </div>
+  //     <div className="navbar-right">
+  //       <span className="navbar-user">{username || "User"}</span>
+  //       <button className="navbar-btn" onClick={handleLogout}>
+  //         Logout
+  //       </button>
+  //     </div>
+  //   </nav>
+  // );
 }
