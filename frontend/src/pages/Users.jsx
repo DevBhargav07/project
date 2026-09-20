@@ -1,7 +1,21 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import Navbar from "../components/Navbar";
 import { getAllUsers } from "../api/auth";
+
+
+function FormatDate({ timestamp }) {
+  if (!timestamp) return <span>—</span>;
+
+  const date = new Date(timestamp);
+  if (isNaN(date.getTime())) return <span>—</span>; // guards against bad/missing data
+
+  const formatted = new Intl.DateTimeFormat(navigator.language, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+
+  return <span>{formatted}</span>;
+}
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -25,36 +39,35 @@ export default function Users() {
   }, []);
 
   return (
-    <div>
-      <Navbar />
-      <div className="page-content">
-        <h1>&gt; ALL_USERS</h1>
+    <div className="page-content">
+      <h1>All Users</h1>
 
-        {loading ? (
-          <p>Loading users...</p>
-        ) : users.length === 0 ? (
-          <p>No users found.</p>
-        ) : (
-          <table className="users-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
+      {loading ? (
+        <p>Loading users...</p>
+      ) : users.length === 0 ? (
+        <p>No users found.</p>
+      ) : (
+        <table className="users-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.id}>
+                <td>{u.username}</td>
+                <td>{u.email}</td>
+                <td>
+                  <FormatDate timestamp={u.created_at} />
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.id}>
-                  <td>{u.id}</td>
-                  <td>{u.username}</td>
-                  <td>{u.email}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
