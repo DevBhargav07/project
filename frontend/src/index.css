@@ -279,3 +279,216 @@ body:has(.navbar) {
 .users-table tr:hover td {
   background: rgba(0, 255, 120, 0.04);
 }
+
+/* ==========================================================================
+   LIGHT / DARK THEME (applies to Dashboard, Users, Sidebar, 404 —
+   NOT the Matrix login/register pages, which always stay dark-green)
+   Controlled by data-theme="light" | "dark" on <html>, set in ThemeContext.
+   ========================================================================== */
+
+:root[data-theme="light"] {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --text: #1a1a1a;
+  --text-muted: #666666;
+  --border: #e2e4e8;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #333333;
+  --sidebar-active-bg: #eef0ff;
+}
+
+:root[data-theme="dark"] {
+  --bg: #14151a;
+  --surface: #1e1f26;
+  --text: #eaeaea;
+  --text-muted: #9a9a9a;
+  --border: #33343d;
+  --accent: #6d78ff;
+  --accent-hover: #8590ff;
+  --sidebar-bg: #1a1b22;
+  --sidebar-text: #d4d4d8;
+  --sidebar-active-bg: #2a2b36;
+}
+
+/* ---------- App layout: sidebar + main content ---------- */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0; /* prevents content from overflowing the flex box */
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 16px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebar-brand {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 28px;
+  padding-left: 8px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-link {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-link:hover {
+  background: var(--sidebar-active-bg);
+}
+
+.sidebar-link.active {
+  background: var(--sidebar-active-bg);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.theme-toggle-btn {
+  padding: 9px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--sidebar-text);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--sidebar-active-bg);
+}
+
+.sidebar-user {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding-left: 4px;
+}
+
+.sidebar-logout-btn {
+  padding: 9px 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sidebar-logout-btn:hover {
+  background: var(--accent-hover);
+}
+
+/* ---------- Light/dark page content (Dashboard, Users) ---------- */
+/* Overrides the old dark-green .page-content so it fits the light/dark theme
+   instead of the Matrix look, which is reserved for auth pages. */
+.app-main .page-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: none;
+  color: var(--text);
+  margin: 40px;
+  max-width: none;
+}
+
+.app-main .page-content h1 {
+  color: var(--text);
+  text-shadow: none;
+}
+
+.app-main .page-content p {
+  color: var(--text-muted);
+}
+
+.app-main .users-table th,
+.app-main .users-table td {
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-main .users-table th {
+  color: var(--text-muted);
+}
+
+.app-main .users-table tr:hover td {
+  background: var(--sidebar-active-bg);
+}
+
+/* ---------- 404 page ---------- */
+.notfound-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--bg, #f5f6f8);
+  color: var(--text, #1a1a1a);
+  text-align: center;
+  padding: 20px;
+}
+
+.notfound-page h1 {
+  font-size: 72px;
+  font-weight: 800;
+  color: var(--accent, #4f46e5);
+  margin: 0;
+}
+
+.notfound-page p {
+  color: var(--text-muted, #666);
+  margin-bottom: 8px;
+}
+
+.notfound-link {
+  padding: 10px 20px;
+  background: var(--accent, #4f46e5);
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.notfound-link:hover {
+  background: var(--accent-hover, #4338ca);
+}
