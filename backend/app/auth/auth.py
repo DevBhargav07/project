@@ -14,11 +14,10 @@ from app.schemas import UserOut, UserCreate, LoginResponse
 from app.database import get_async_session, AsyncSessionLocal
 from app.models import User
 
-# Loading .env 
-from dotenv import load_dotenv
-load_dotenv()
+# load settings
+from app.config import settings
 
-SECRET_KEY = os.getenv("SECRET_KEY")  # Replace with your actual secret key
+SECRET_KEY = settings.secret_key  # Replace with your actual secret key
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 2 # 2 HOURS
 
