@@ -12,5 +12,4 @@ class Settings(BaseSettings):
                     env_file_encoding="utf-8",
                     extra="ignore")
 
-
 settings = Settings()
