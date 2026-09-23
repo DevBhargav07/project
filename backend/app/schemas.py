@@ -25,4 +25,5 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str
     user_id: int
+    username: str
     is_superuser: bool
