@@ -3,11 +3,11 @@ import api from "./axios";
 // 👉 Adjust these paths to match your FastAPI router prefixes.
 // These match a typical FastAPI + OAuth2PasswordBearer + JWT setup.
 
-export const loginUser = (username, password) => {
+export const loginUser = (email, password) => {
   // FastAPI's OAuth2PasswordRequestForm expects FORM-ENCODED data,
   // not JSON — this is the #1 gotcha when connecting React to FastAPI auth.
   const formData = new URLSearchParams();
-  formData.append("username", username);
+  formData.append("username", email);
   formData.append("password", password);
 
   // Expected response: { access_token: "...", token_type: "bearer" }
