@@ -119,16 +119,15 @@ async def login_user(
     session: session_dependency
 ):
     """ 
-    Login with username and password
+    Login with email and password
     Retures a JWT token to use in the Authorization header.
     """
-
-    user_details = select(User).where(User.username == form_data.username)
+    user_details = select(User).where(User.email == form_data.username) # here username is email
     user = await session.scalar(user_details)
     if not user or not user.verify_password(form_data.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="Invalid username or password",
+            detail="Invalid email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
@@ -142,5 +141,6 @@ async def login_user(
         "access_token": access_token,
         "token_type": "bearer",
         "user_id": user.id,
+        "username": user.username,
         "is_superuser": user.is_superuser
     }
