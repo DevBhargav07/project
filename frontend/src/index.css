@@ -1,21 +1,8 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
-
-@custom-variant dark (&:is(.dark *));
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: "Consolas", "Courier New", monospace;
-  background: #000000;
-  min-height: 100vh;
-  color: #c8ffd4;
-}
 
 /* ---------- Matrix rain background canvas ---------- */
 .matrix-canvas {
