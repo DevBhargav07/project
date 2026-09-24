@@ -13,6 +13,8 @@ import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 import Topbar from "./components/Topbar";
 import Profile from "./pages/Profile";
+import UserDetail from "./pages/UserDetail";
+import GroupsAdmin from "./pages/GroupsAdmin";
 import RequirePermission from "./components/RequirePermission";
 
 // Every logged-in page (Dashboard, Users, ...) gets wrapped in this:
@@ -69,6 +71,30 @@ function App() {
                   <AppLayout>
                     <Profile />
                   </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users/:id"
+              element={
+                <ProtectedRoute>
+                  <RequirePermission permission="view_users">
+                    <AppLayout>
+                      <UserDetail />
+                    </AppLayout>
+                  </RequirePermission>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/groups"
+              element={
+                <ProtectedRoute>
+                  <RequirePermission permission="change_groups">
+                    <AppLayout>
+                      <GroupsAdmin />
+                    </AppLayout>
+                  </RequirePermission>
                 </ProtectedRoute>
               }
             />
