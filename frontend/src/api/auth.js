@@ -57,3 +57,19 @@ export const getAllGroups= () => {
 export const updateUserGroups= (user_id, groupIds) => {
   return api.put(`/users/${user_id}/groups`, { group_ids: groupIds})
 }
+
+export const getUserDetail = (userId) => api.get(`/users/${userId}`);
+
+export const getGroupsDetailed = () => api.get("/users/admin/groups");
+export const createGroup = (name, permissionIds) =>
+  api.post("/users/admin/groups", { name, permission_ids: permissionIds });
+export const deleteGroup = (groupId) => api.delete(`/users/admin/groups/${groupId}`);
+
+export const getAllPermissions = () => api.get("/users/admin/permissions");
+export const createPermission = (codename, name, modelName, description) =>
+  api.post("/users/admin/permissions", {
+    codename,
+    name,
+    model_name: modelName,
+    description,
+  });
