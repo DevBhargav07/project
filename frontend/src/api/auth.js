@@ -30,3 +30,30 @@ export const registerUser = (username, email, password) => {
 export const getAllUsers = () => {
   return api.get("/users/");
 };
+
+// Returns the currently logged-in user's own profile: username, email,
+// created_at, groups, permissions, is_superuser.
+export const getMyProfile = () => {
+  return api.get("/users/me")
+}
+
+
+
+// Deletes a user by ID. Requires delete_users permission (or superuser)
+// on the backend — the button is also hidden on the frontend unless
+// the current user has that permission, but the backend check is
+// what actually enforces it.
+// export const deleteUser = (userId) => {
+//   return api.delete(`/users/${userId}`);
+// };
+
+
+// List all available groups (for the assign-group functions)
+export const getAllGroups= () => {
+  return api.get("/users/groups");
+}
+
+// Update which groups for a specific user belogs to
+export const updateUserGroups= (user_id, groupIds) => {
+  return api.put(`/users/${user_id}/groups`, { group_ids: groupIds})
+}
