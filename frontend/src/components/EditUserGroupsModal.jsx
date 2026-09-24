@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { X } from "lucide-react";
 import { getAllGroups, updateUserGroups } from "../api/auth";
+import { getErrorMessage } from "@/api/errors";
 
 export default function EditUserGroupsModal({ user, onClose, onSaved }) {
   const [allGroups, setAllGroups] = useState([]);
@@ -22,7 +23,7 @@ export default function EditUserGroupsModal({ user, onClose, onSaved }) {
           .map((g) => g.id);
         setSelectedIds(preselected);
       } catch (error) {
-        toast.error("Failed to load groups");
+        toast.error(getErrorMessage(error, "Failed to load groups"));
       } finally {
         setLoading(false);
       }
@@ -47,7 +48,7 @@ export default function EditUserGroupsModal({ user, onClose, onSaved }) {
       onClose();
     } catch (error) {
       const message = error.response?.data?.detail || "Failed to update groups";
-      toast.error(message);
+      toast.error(getErrorMessage(message));
     } finally {
       setSaving(false);
     }
