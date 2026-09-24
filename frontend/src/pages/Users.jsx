@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Pencil, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { getAllUsers } from "../api/auth";
 import { FormatDate } from "../components/FormatDate";
 import { useAuth } from "../context/AuthContext";
-import EditUserGroupsModal from "../components/EditUserGroupsModal";
+import { getErrorMessage } from "@/api/errors";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editingUser, setEditingUser] = useState(null);
   const { hasPermission } = useAuth();
+  const navigate = useNavigate();
 
-  const canEdit = hasPermission("change_users");
   const canDelete = hasPermission("delete_users");
 
   const fetchUsers = async () => {
@@ -20,8 +20,7 @@ export default function Users() {
       const response = await getAllUsers();
       setUsers(response.data);
     } catch (error) {
-      const message = error.response?.data?.detail || "Failed to load users";
-      toast.error(message);
+      toast.error(getErrorMessage(error.response?.data?.detail, "Failed to load users"));
     } finally {
       setLoading(false);
     }
@@ -31,7 +30,8 @@ export default function Users() {
     fetchUsers();
   }, []);
 
-  // const handleDelete = async (userId, username) => {
+  // const handleDelete = async (e, userId, username) => {
+  //   e.stopPropagation(); // don't trigger the row's navigate-to-detail click
   //   if (!window.confirm(`Delete user "${username}"? This cannot be undone.`)) return;
 
   //   try {
@@ -39,8 +39,7 @@ export default function Users() {
   //     toast.success(`Deleted ${username}`);
   //     setUsers((prev) => prev.filter((u) => u.id !== userId));
   //   } catch (error) {
-  //     const message = error.response?.data?.detail || "Failed to delete user";
-  //     toast.error(message);
+  //     toast.error(getErrorMessage(error.response?.data?.detail, "Failed to delete user"));
   //   }
   // };
 
@@ -58,52 +57,38 @@ export default function Users() {
             <tr>
               <th>Username</th>
               <th>Email</th>
-              <th>Created</th>
-              {(canEdit || canDelete) && <th>Actions</th>}
+              <th>Created</th>  
+              {canDelete && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id}>
+              <tr
+                key={u.id}
+                className="users-table-row-clickable"
+                onClick={() => navigate(`/users/${u.id}`)}
+              >
                 <td>{u.username}</td>
                 <td>{u.email}</td>
                 <td>
                   <FormatDate timestamp={u.created_at} />
                 </td>
-                {(canEdit || canDelete) && (
+                {/* {canDelete && (
                   <td className="users-actions">
-                    {canEdit && (
-                        <button
-                          className="icon-btn"
-                          title="Edit user"
-                          onClick={() => setEditingUser(u)}
-                        >
-                          <Pencil size={16} />
-                        </button>
-                      )}
-                    {/* {canDelete && (
-                      <button
-                        className="icon-btn icon-btn-danger"
-                        title="Delete user"
-                        onClick={() => handleDelete(u.id, u.username)}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    )} */}
+                    <button
+                      className="icon-btn icon-btn-danger"
+                      title="Delete user"
+                      onClick={(e) => handleDelete(e, u.id, u.username)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </td>
-                )}
+                )} */}
               </tr>
             ))}
           </tbody>
         </table>
       )}
-      {editingUser && (
-      <EditUserGroupsModal
-        user={editingUser}
-        onClose={() => setEditingUser(null)}
-        onSaved={fetchUsers}
-      />
-    )}
     </div>
   );
 }
