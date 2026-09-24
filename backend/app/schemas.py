@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 class UserCreate(BaseModel):
@@ -48,4 +48,36 @@ class GroupOut(BaseModel):
 
 class UpdateUserGroups(BaseModel):
     group_ids: List[int]
-    
+
+class UserDetailOut(BaseModel):
+    id: int
+    username: str
+    email: EmailStr
+    created_at: datetime
+    is_active: bool
+    is_superuser: bool
+    groups: List[str]
+
+#------------------ GROUPS ----------------------------
+class GroupDetailOut(BaseModel):
+    id: int
+    name: str
+    permissions: List[str]
+
+class CreateGroup(BaseModel):
+    name: str
+    permissions: List[str] = []
+
+#-------------------- Permissions ------------------------
+class PermissionOut(BaseModel):
+    id: int
+    codename: str
+    name: str
+    model_name: str
+    description: Optional[str] = None
+
+class CreatePermission(BaseModel):
+    codename: str
+    name: str
+    model_name: str
+    description: Optional[str] = None
