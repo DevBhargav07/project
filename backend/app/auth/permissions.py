@@ -38,7 +38,7 @@ class IsActive(BasePermission):
         return user.is_active
 
 def require_permissions(*permission_classes: Type[BasePermission]):
-    def dependency(user: User = Depends(get_current_user)) -> User:
+    def dependency(user: User = Depends(get_current_user)):
         for perm_cls in permission_classes:
             perm = perm_cls()
             if not perm.has_permission(user):
@@ -58,10 +58,9 @@ async def check_permission(user: User, codename: str, session: AsyncSession) -> 
     # checking permissions table
     stmt = (
         select(Permission.id)
-        .join(GroupPermission, GroupPermission.permission_id==Permission.id)
-        .where(UserPermission.user_id == user.id, Permission.codename==codename)
+        .join(UserPermission, UserPermission.permission_id == Permission.id)
+        .where(UserPermission.user_id == user.id, Permission.codename == codename)
     )
-
     if await session.scalar(stmt):
         return True
 
@@ -69,10 +68,9 @@ async def check_permission(user: User, codename: str, session: AsyncSession) -> 
     stmt = (
         select(Permission.id)
         .join(GroupPermission, GroupPermission.permission_id == Permission.id)
-        .join(UserGroup, UserGroup.id == GroupPermission.group_id)
-        .where(UserGroup.user_id == user.id, Permission.codename==codename)
+        .join(UserGroup, UserGroup.group_id == GroupPermission.group_id)
+        .where(UserGroup.user_id == user.id, Permission.codename == codename)
     )
-
     if await session.scalar(stmt):
         return True
 
@@ -85,7 +83,7 @@ def require_permission_(codename: str):
         Depends(require_permission) 
     """
     async def checker(
-        current_user: User,
+        current_user: CurrentUser,
         session: SessionDep
     ):
         has_perm = await check_permission(current_user, codename, session)
