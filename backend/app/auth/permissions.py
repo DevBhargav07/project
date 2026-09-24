@@ -8,7 +8,6 @@ from typing_extensions import Annotated
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
 class BasePermission:
     """BasePermission like DRF's. Baseclass and override has_permission"""
     def has_permission(self, user: User) -> bool:
@@ -91,7 +90,6 @@ def require_permission_(codename: str):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Permission Denied: {codename}")
         return current_user
     return checker
-
 
 #---------------------- AutoGenerating CRUD Permissions ----------------------------------------
 async def ensure_crud_permissions(session: AsyncSession):
