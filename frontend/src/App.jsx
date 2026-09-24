@@ -11,15 +11,21 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
+import Topbar from "./components/Topbar";
+import Profile from "./pages/Profile";
+import RequirePermission from "./components/RequirePermission";
 
 // Every logged-in page (Dashboard, Users, ...) gets wrapped in this:
 // sidebar on the left, page content on the right. Add new protected
 // pages by wrapping them the same way in the Routes below.
 function AppLayout({ children }) {
   return (
-    <div className="app-layout">
-      <Sidebar />
-      <main className="app-main">{children}</main>
+    <div className="app-shell">
+      <Topbar />
+      <div className="app-layout">
+        <Sidebar />
+        <main className="app-main">{children}</main>
+      </div>
     </div>
   );
 }
@@ -48,8 +54,20 @@ function App() {
               path="/users"
               element={
                 <ProtectedRoute>
+                  <RequirePermission permission="view_users">
+                    <AppLayout>
+                      <Users />
+                    </AppLayout>
+                  </RequirePermission>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
                   <AppLayout>
-                    <Users />
+                    <Profile />
                   </AppLayout>
                 </ProtectedRoute>
               }
