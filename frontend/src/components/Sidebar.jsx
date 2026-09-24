@@ -28,6 +28,16 @@ export default function Sidebar() {
             >
               Users
             </NavLink>)}
+            {hasPermission("change_groups") && (
+              <NavLink
+                to="/admin/groups"
+                className={({ isActive }) =>
+                  isActive ? "sidebar-link active" : "sidebar-link"
+                }
+              >
+                Groups & Permissions
+              </NavLink>
+            )}
         </nav>
       </div>
     </aside>
