@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from typing import List
 from datetime import datetime
 
 class UserCreate(BaseModel):
@@ -11,9 +12,8 @@ class UserOut(BaseModel):
     id: int
     email: EmailStr
     username: str
-    is_active: bool
-    is_superuser: bool
     created_at: datetime
+    is_superuser: bool
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -26,4 +26,26 @@ class LoginResponse(BaseModel):
     token_type: str
     user_id: int
     username: str
+    groups: List[str]
+    permissions: List[str]
     is_superuser: bool
+
+class ProfileResponse(BaseModel):
+    email: EmailStr
+    username: str
+    created_at: datetime
+    is_superuser: bool
+    groups: List[str]
+    permissions: List[str]
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GroupOut(BaseModel):
+    id: int
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+class UpdateUserGroups(BaseModel):
+    group_ids: List[int]
+    
