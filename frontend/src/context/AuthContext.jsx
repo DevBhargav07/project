@@ -23,26 +23,46 @@ export function AuthProvider({ children }) {
     localStorage.getItem("username") || ""
   );
 
+  const [ permissions, setPermissions ] = useState(
+    JSON.parse(localStorage.getItem("permissions") || "[]")
+  )
+
+  const [ groups,setGroups ] = useState(
+    JSON.parse(localStorage.getItem("groups") || "[]")
+  )
+
+
   const isAuthenticated = !!accessToken;
 
   // Called after a successful login
-  const login = ({ access, refresh, username: uname }) => {
+  const login = ({ access, refresh, username: uname, permissions: perms, groups: grps }) => {
     localStorage.setItem("access_token", access);
     if (refresh) localStorage.setItem("refresh_token", refresh);
     if (uname) localStorage.setItem("username", uname);
+    localStorage.setItem("permissions", JSON.stringify(perms || []));
+    localStorage.setItem("groups", JSON.stringify(grps || []));
 
     setAccessToken(access);
     setUsername(uname || "");
-  };
+    setPermissions(perms || []);
+    setGroups(grps || []);
+  }
 
   // Called on logout, or when a refresh attempt fails
   const logout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("username");
+    localStorage.removeItem("permissions");
+    localStorage.removeItem("groups");
     setAccessToken(null);
     setUsername("");
+    setPermissions([]);
+    setGroups([]);
   };
+  
+  const hasPermission = (codeName) => permissions.includes(codeName);
+  const hasGroup = (groupName) => groups.includes(groupName);
 
   // Keep multiple tabs in sync (optional nice-to-have)
   useEffect(() => {
@@ -50,6 +70,8 @@ export function AuthProvider({ children }) {
       if (e.key === "access_token" && !e.newValue) {
         setAccessToken(null);
         setUsername("");
+        setPermissions([]);
+        setGroups([]);
       }
     };
     window.addEventListener("storage", syncLogout);
@@ -79,7 +101,17 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ accessToken, username, isAuthenticated, login, logout }}
+      value={{
+        accessToken,
+        username,
+        permissions,
+        groups,
+        isAuthenticated,
+        login,
+        logout,
+        hasPermission,
+        hasGroup,
+      }}
     >
       {children}
     </AuthContext.Provider>
