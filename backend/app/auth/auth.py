@@ -8,11 +8,12 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from fastapi import APIRouter
 from app.schemas import UserOut, UserCreate, LoginResponse
 
 from app.database import get_async_session, AsyncSessionLocal
-from app.models import User
+from app.models import User, Group, Permission
 
 # load settings
 from app.config import settings
@@ -122,7 +123,12 @@ async def login_user(
     Login with email and password
     Retures a JWT token to use in the Authorization header.
     """
-    user_details = select(User).where(User.email == form_data.username) # here username is email
+    # user_details = select(User).where(User.email == form_data.username) # here username is email
+    user_details = (
+        select(User)
+        .options(selectinload(User.groups).selectinload(Group.permissions))
+        .where(User.email == form_data.username)  # here username is email
+    )
     user = await session.scalar(user_details)
     if not user or not user.verify_password(form_data.password):
         raise HTTPException(
@@ -134,13 +140,22 @@ async def login_user(
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User account is inactive")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    groups = [g.name for g in user.groups]
+    permissions = sorted({perm.codename for g in user.groups for perm in g.permissions})
     access_token = create_access_token(
-        data={"sub": str(user.id)}, expires_delta=access_token_expires
+        data={
+            "sub": str(user.id),
+            "groups": groups,
+            "permissions": permissions
+            }, 
+        expires_delta=access_token_expires,
     )
     return {
         "access_token": access_token,
         "token_type": "bearer",
         "user_id": user.id,
         "username": user.username,
+        "groups": groups,
+        "permissions": permissions,
         "is_superuser": user.is_superuser
     }
