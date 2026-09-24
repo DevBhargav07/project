@@ -37,12 +37,14 @@ export default function Login() {
     setLoading(true);
     try {
       const response = await loginUser(formData.email, formData.password);
-      const { access_token, refresh_token, username } = response.data;
+      const { access_token, refresh_token, username, permissions, groups } = response.data;
 
       login({
         access: access_token,
         refresh: refresh_token,
         username: username,
+        permissions: permissions,
+        groups: groups
       });
 
       toast.success("Logged in successfully!");
