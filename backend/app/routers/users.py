@@ -6,7 +6,10 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_async_session
 from app.models import User, Group, Permission
-from app.schemas import (UserOut, ProfileResponse, GroupOut, UpdateUserGroups, UserDetailOut, PermissionOut, CreatePermission, GroupDetailOut, CreateGroup)
+from app.schemas import (
+    UserOut, ProfileResponse, GroupOut, UpdateUserGroups, UserDetailOut, PermissionOut, CreatePermission,
+    GroupDetailOut, CreateGroup, UpdateUserBasic, UpdateActiveStatus, UpdateSuperuserStatus
+)
 from app.auth.permissions import IsActive, IsAuthenticated, IsSuperuser, require_permissions, require_permission_
 
 router = APIRouter(
@@ -204,3 +207,127 @@ async def update_user_groups(
     await session.refresh(user)
 
     return user
+
+#----------------------- Update User ----------------------------------
+@router.put("/{user_id}", response_model=UserDetailOut)
+async def update_user_basic(
+    user_id: int,
+    payload: UpdateUserBasic,
+    session: session_dependency,
+    _=Depends(require_permission_("change_users")),
+):
+    stmt = (
+        select(User)
+        .options(selectinload(User.groups))
+        .where(User.id == user_id)
+    )
+    user = await session.scalar(stmt)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    username = payload.username.strip()
+    email = payload.email.strip()
+
+    if not username:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username cannot be empty")
+
+    import re
+    if not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email address")
+
+    dupe_stmt = select(User).where(
+        User.id != user_id,
+        (User.username == username) | (User.email == email),
+    )
+    dupe = await session.scalar(dupe_stmt)
+    if dupe:
+        if dupe.username == username:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already taken")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already in use")
+
+    user.username = username
+    user.email = email
+    await session.commit()
+
+    groups_stmt = select(User).options(selectinload(User.groups)).where(User.id == user_id)
+    user = await session.scalar(groups_stmt)
+
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "created_at": user.created_at,
+        "is_active": user.is_active,
+        "is_superuser": user.is_superuser,
+        "groups": [g.name for g in user.groups],
+    }
+
+#------------------------ Update Active Status -------------------------------------
+@router.put("/{user_id}/active", response_model=UserDetailOut)
+async def update_user_active_status(
+    user_id: int,
+    payload: UpdateActiveStatus,
+    session: session_dependency,
+    current_user: User = Depends(IsSuperuser()),
+):
+    user = await session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    if user.id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot deactivate your own account",
+        )
+
+    user.is_active = payload.is_active
+    await session.commit()
+    await session.refresh(user)
+
+    groups_stmt = select(User).options(selectinload(User.groups)).where(User.id == user_id)
+    user = await session.scalar(groups_stmt)
+
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "created_at": user.created_at,
+        "is_active": user.is_active,
+        "is_superuser": user.is_superuser,
+        "groups": [g.name for g in user.groups],
+    }
+
+#------------------------ Update Superuser Status -------------------------------------
+@router.put("/{user_id}/superuser", response_model=UserDetailOut)
+async def update_user_superuser_status(
+    user_id: int,
+    payload: UpdateSuperuserStatus,
+    session: session_dependency,
+    current_user: User = Depends(IsSuperuser()),
+):
+    user = await session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    if user.id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot change your own superuser status",
+        )
+
+    user.is_superuser = payload.is_superuser
+    await session.commit()
+    await session.refresh(user)
+
+    groups_stmt = select(User).options(selectinload(User.groups)).where(User.id == user_id)
+    user = await session.scalar(groups_stmt)
+
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "created_at": user.created_at,
+        "is_active": user.is_active,
+        "is_superuser": user.is_superuser,
+        "groups": [g.name for g in user.groups],
+    }
