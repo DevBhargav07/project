@@ -31,19 +31,25 @@ export function AuthProvider({ children }) {
     JSON.parse(localStorage.getItem("groups") || "[]")
   )
 
+  const [userId, setUserId] = useState(
+    localStorage.getItem("user_id") || null
+  );
+
 
   const isAuthenticated = !!accessToken;
 
   // Called after a successful login
-  const login = ({ access, refresh, username: uname, permissions: perms, groups: grps }) => {
+  const login = ({ access, refresh, username: uname, permissions: perms, groups: grps, user_id }) => {
     localStorage.setItem("access_token", access);
     if (refresh) localStorage.setItem("refresh_token", refresh);
     if (uname) localStorage.setItem("username", uname);
+    if (user_id) localStorage.setItem("user_id", user_id);
     localStorage.setItem("permissions", JSON.stringify(perms || []));
     localStorage.setItem("groups", JSON.stringify(grps || []));
 
     setAccessToken(access);
     setUsername(uname || "");
+    setUserId(user_id || null);
     setPermissions(perms || []);
     setGroups(grps || []);
   }
@@ -60,7 +66,29 @@ export function AuthProvider({ children }) {
     setPermissions([]);
     setGroups([]);
   };
-  
+
+  // Re-fetches the current user's permissions/groups from the backend
+  // without needing to log in again. Call this after an admin changes
+  // someone's groups, or periodically, to keep permissions fresh.
+  const refreshPermissions = async () => {
+    if (!accessToken) return;
+    try {
+      // Dynamic import avoids a circular import between AuthContext and api/auth.js
+      const { getMyProfile } = await import("../api/auth");
+      const response = await getMyProfile();
+      const perms = response.data.permissions || [];
+      const grps = response.data.groups || [];
+
+      localStorage.setItem("permissions", JSON.stringify(perms));
+      localStorage.setItem("groups", JSON.stringify(grps));
+      setPermissions(perms);
+      setGroups(grps);
+    } catch {
+      // Silently ignore — if this fails, the user just keeps their
+      // last-known permissions until the next successful refresh.
+    }
+  };
+    
   const hasPermission = (codeName) => permissions.includes(codeName);
   const hasGroup = (groupName) => groups.includes(groupName);
 
@@ -80,6 +108,14 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!accessToken) return;
 
+    const onFocus= () => refreshPermissions();
+    window.addEventListener("focus", onFocus);
+
+    const interval = setInterval(refreshPermissions, 2 * 60 * 1000);
+
+
+
+
     const payload = decodeJwt(accessToken);
     if (!payload?.exp) return;
 
@@ -96,7 +132,11 @@ export function AuthProvider({ children }) {
       logout();
     }, msUntilExpiry);
 
-    return () => clearTimeout(timer); // cleanup if token changes/unmounts
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      clearTimeout(timer); // cleanup if token changes/unmounts
+    }
+      
   }, [accessToken]);
 
   return (
