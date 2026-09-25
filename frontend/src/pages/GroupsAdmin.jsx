@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import {
   getGroupsDetailed,
   createGroup,
@@ -18,6 +18,7 @@ export default function GroupsAdmin() {
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupPermIds, setNewGroupPermIds] = useState([]);
   const [creatingGroup, setCreatingGroup] = useState(false);
+  const [showGroupPerms, setShowGroupPerms] = useState(false);
 
   const [newPerm, setNewPerm] = useState({ codename: "", name: "", model_name: "", description: "" });
   const [creatingPerm, setCreatingPerm] = useState(false);
@@ -143,66 +144,91 @@ export default function GroupsAdmin() {
       {/* Create a new group */}
       <div className="profile-section">
         <h2>Create a new group</h2>
-        <input
-          type="text"
-          placeholder="Group name"
-          value={newGroupName}
-          onChange={(e) => setNewGroupName(e.target.value)}
-          className="admin-input"
-        />
-        <div className="modal-group-list" style={{ marginTop: 12 }}>
-          {allPermissions.map((p) => (
-            <label key={p.id} className="modal-group-item">
-              <input
-                type="checkbox"
-                checked={newGroupPermIds.includes(p.id)}
-                onChange={() => toggleNewGroupPerm(p.id)}
-              />
-              {p.codename}
-            </label>
-          ))}
+        <div className="admin-form-card">
+          <input
+            type="text"
+            placeholder="Group name"
+            value={newGroupName}
+            onChange={(e) => setNewGroupName(e.target.value)}
+            className="admin-input"
+          />
+
+          <button
+            type="button"
+            className="admin-collapsible-toggle"
+            onClick={() => setShowGroupPerms((prev) => !prev)}
+          >
+            {showGroupPerms ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {newGroupPermIds.length > 0
+              ? `${newGroupPermIds.length} permission(s) selected`
+              : "Select permissions (optional)"}
+          </button>
+
+          {showGroupPerms && (
+            <div className="modal-group-list">
+              {allPermissions.map((p) => (
+                <label key={p.id} className="modal-group-item">
+                  <input
+                    type="checkbox"
+                    checked={newGroupPermIds.includes(p.id)}
+                    onChange={() => toggleNewGroupPerm(p.id)}
+                  />
+                  {p.codename}
+                </label>
+              ))}
+            </div>
+          )}
+
+          <div className="admin-submit-row">
+            <button className="modal-btn-primary" onClick={handleCreateGroup} disabled={creatingGroup}>
+              <Plus size={15} />
+              {creatingGroup ? "Creating..." : "Create group"}
+            </button>
+          </div>
         </div>
-        <button className="modal-btn-primary" onClick={handleCreateGroup} disabled={creatingGroup}>
-          <Plus size={16} />
-          {creatingGroup ? "Creating..." : "Create group"}
-        </button>
       </div>
 
       {/* Create a new permission */}
       <div className="profile-section">
         <h2>Create a new permission</h2>
-        <input
-          type="text"
-          placeholder="Codename (e.g. view_reports)"
-          value={newPerm.codename}
-          onChange={(e) => setNewPerm({ ...newPerm, codename: e.target.value })}
-          className="admin-input"
-        />
-        <input
-          type="text"
-          placeholder="Display name (e.g. Can view reports)"
-          value={newPerm.name}
-          onChange={(e) => setNewPerm({ ...newPerm, name: e.target.value })}
-          className="admin-input"
-        />
-        <input
-          type="text"
-          placeholder="Model name (e.g. reports)"
-          value={newPerm.model_name}
-          onChange={(e) => setNewPerm({ ...newPerm, model_name: e.target.value })}
-          className="admin-input"
-        />
-        <input
-          type="text"
-          placeholder="Description (optional)"
-          value={newPerm.description}
-          onChange={(e) => setNewPerm({ ...newPerm, description: e.target.value })}
-          className="admin-input"
-        />
-        <button className="modal-btn-primary" onClick={handleCreatePermission} disabled={creatingPerm}>
-          <Plus size={16} />
-          {creatingPerm ? "Creating..." : "Create permission"}
-        </button>
+        <div className="admin-form-card">
+          <div className="admin-form-row">
+            <input
+              type="text"
+              placeholder="Codename (e.g. view_reports)"
+              value={newPerm.codename}
+              onChange={(e) => setNewPerm({ ...newPerm, codename: e.target.value })}
+              className="admin-input"
+            />
+            <input
+              type="text"
+              placeholder="Model name (e.g. reports)"
+              value={newPerm.model_name}
+              onChange={(e) => setNewPerm({ ...newPerm, model_name: e.target.value })}
+              className="admin-input"
+            />
+          </div>
+          <input
+            type="text"
+            placeholder="Display name (e.g. Can view reports)"
+            value={newPerm.name}
+            onChange={(e) => setNewPerm({ ...newPerm, name: e.target.value })}
+            className="admin-input"
+          />
+          <input
+            type="text"
+            placeholder="Description (optional)"
+            value={newPerm.description}
+            onChange={(e) => setNewPerm({ ...newPerm, description: e.target.value })}
+            className="admin-input"
+          />
+          <div className="admin-submit-row">
+            <button className="modal-btn-primary" onClick={handleCreatePermission} disabled={creatingPerm}>
+              <Plus size={15} />
+              {creatingPerm ? "Creating..." : "Create permission"}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
