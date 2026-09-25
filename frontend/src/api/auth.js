@@ -73,3 +73,14 @@ export const createPermission = (codename, name, modelName, description) =>
     model_name: modelName,
     description,
   });
+
+export const updateUserBasic = (userId, username, email) => {
+  api.put(`/users/${userId}`, { username, email});
+}
+
+export const updateUserActiveStatus = (userId, isActive) => {
+  api.put(`users/${userId}/active`, { is_active: isActive });
+}
+
+export const updateUserSuperuserStatus = (userId, isSuperuser) =>
+  api.put(`/users/${userId}/superuser`, { is_superuser: isSuperuser });
