@@ -27,7 +27,30 @@ export default function Users() {
   };
 
   useEffect(() => {
+    let ignore = false;
+
+    const fetchUsers = async () => {
+      try {
+        const response = await getAllUsers();
+        if (!ignore) {
+          setUsers(response.data);
+        }
+      } catch (error) {
+        if (!ignore) {
+          toast.error(error.response?.data?.detail || "Failed to load users");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
     fetchUsers();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   // const handleDelete = async (e, userId, username) => {
