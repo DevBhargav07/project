@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import UserDetail from "./pages/UserDetail";
 import GroupsAdmin from "./pages/GroupsAdmin";
 import RequirePermission from "./components/RequirePermission";
+import RequirePermissionOrSelf from "./components/RequirePermissionorSelf";
 
 // Every logged-in page (Dashboard, Users, ...) gets wrapped in this:
 // sidebar on the left, page content on the right. Add new protected
@@ -78,11 +79,11 @@ function App() {
               path="/users/:id"
               element={
                 <ProtectedRoute>
-                  <RequirePermission permission="view_users">
+                   <RequirePermissionOrSelf permission="view_users">
                     <AppLayout>
                       <UserDetail />
                     </AppLayout>
-                  </RequirePermission>
+                  </RequirePermissionOrSelf>
                 </ProtectedRoute>
               }
             />
