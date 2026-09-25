@@ -12,7 +12,6 @@ import {
 } from "../api/auth";
 import { FormatDate } from "../components/FormatDate";
 import { useAuth } from "../context/AuthContext";
-
 export default function UserDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -31,35 +30,69 @@ export default function UserDetail() {
   const [savingActive, setSavingActive] = useState(false);
   const [savingSuperuser, setSavingSuperuser] = useState(false);
 
-  // From the earlier is_superuser you're storing at login — if you
-  // haven't already, this reads it the same way userId is read.
   const isSuperuser = localStorage.getItem("is_superuser") === "true";
 
   const canManageGroups = hasPermission("change_users");
   const canEditBasic = hasPermission("change_users");
   const isOwnPage = String(myUserId) === String(id);
 
-  const load = async () => {
+  // Shared fetch logic, used both by the auto-load effect (with an
+  // ignore guard) and by manual re-fetches after a save (no guard
+  // needed there, since it's a one-off user-triggered action).
+  const fetchUserData = async () => {
+    const [userRes, groupsRes] = await Promise.all([
+      getUserDetail(id),
+      canManageGroups ? getAllGroups() : Promise.resolve({ data: [] }),
+    ]);
+    return { userRes, groupsRes };
+  };
+
+  const applyUserData = ({ userRes, groupsRes }) => {
+    setUser(userRes.data);
+    setBasicForm({ username: userRes.data.username, email: userRes.data.email });
+    setAllGroups(groupsRes.data);
+    setSelectedGroupIds(
+      groupsRes.data.filter((g) => userRes.data.groups.includes(g.name)).map((g) => g.id)
+    );
+  };
+
+  // Manual re-fetch, used after saves. No ignore-guard needed since
+  // it's triggered once per user action, not by an effect that can
+  // double-fire.
+  const reload = async () => {
     try {
-      const [userRes, groupsRes] = await Promise.all([
-        getUserDetail(id),
-        canManageGroups ? getAllGroups() : Promise.resolve({ data: [] }),
-      ]);
-      setUser(userRes.data);
-      setBasicForm({ username: userRes.data.username, email: userRes.data.email });
-      setAllGroups(groupsRes.data);
-      setSelectedGroupIds(
-        groupsRes.data.filter((g) => userRes.data.groups.includes(g.name)).map((g) => g.id)
-      );
+      const result = await fetchUserData();
+      applyUserData(result);
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to load user");
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
+    let ignore = false;
+
+    const load = async () => {
+      try {
+        const result = await fetchUserData();
+        if (!ignore) {
+          applyUserData(result);
+        }
+      } catch (error) {
+        if (!ignore) {
+          toast.error(error.response?.data?.detail || "Failed to load user");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
     load();
+
+    return () => {
+      ignore = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -74,7 +107,7 @@ export default function UserDetail() {
     try {
       await updateUserGroups(user.id, selectedGroupIds);
       toast.success("Groups updated");
-      load();
+      reload();
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to update groups");
     } finally {
@@ -88,7 +121,7 @@ export default function UserDetail() {
       await updateUserBasic(user.id, basicForm.username, basicForm.email);
       toast.success("User details updated");
       setEditingBasic(false);
-      load();
+      reload();
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to update user");
     } finally {
@@ -105,7 +138,7 @@ export default function UserDetail() {
     try {
       await updateUserActiveStatus(user.id, next);
       toast.success(`User ${next ? "activated" : "deactivated"}`);
-      load();
+      reload();
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to update status");
     } finally {
@@ -122,7 +155,7 @@ export default function UserDetail() {
     try {
       await updateUserSuperuserStatus(user.id, next);
       toast.success(`Superuser status ${next ? "granted" : "revoked"}`);
-      load();
+      reload();
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to update superuser status");
     } finally {
