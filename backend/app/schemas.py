@@ -58,6 +58,15 @@ class UserDetailOut(BaseModel):
     is_superuser: bool
     groups: List[str]
 
+class UpdateUserBasic(BaseModel):
+    username: str
+    email: str
+
+class UpdateActiveStatus(BaseModel):
+    is_active: bool
+    
+class UpdateSuperuserStatus(BaseModel):
+    is_superuser: bool
 #------------------ GROUPS ----------------------------
 class GroupDetailOut(BaseModel):
     id: int
@@ -66,7 +75,7 @@ class GroupDetailOut(BaseModel):
 
 class CreateGroup(BaseModel):
     name: str
-    permissions: List[str] = []
+    permission_ids: List[int] = []
 
 #-------------------- Permissions ------------------------
 class PermissionOut(BaseModel):
