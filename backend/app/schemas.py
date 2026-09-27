@@ -14,6 +14,8 @@ class UserOut(BaseModel):
     username: str
     created_at: datetime
     is_superuser: bool
+
+    password: str = Field(exclude=True)
     model_config = ConfigDict(from_attributes=True)
 
 
