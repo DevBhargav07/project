@@ -37,7 +37,8 @@ export default function Topbar() {
 
   return (
     <header className="topbar">
-      <div className="topbar-spacer" />
+      <div className="topbar-brand">MyApp</div>
+
       <div className="topbar-actions">
         <button
           onClick={toggleTheme}
