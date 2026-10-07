@@ -84,3 +84,9 @@ export const updateUserActiveStatus = (userId, isActive) => {
 
 export const updateUserSuperuserStatus = (userId, isSuperuser) =>
   api.put(`/users/${userId}/superuser`, { is_superuser: isSuperuser });
+
+export const getRegions = () => api.get("chat/regions");
+export const getMyVisibility = () => api.get("chat/me/visibility");
+export const updateMyVisibility = (visibility, regionIds) => {  
+  api.put("/chat/me/visibility", { visibility, region_ids: regionIds});
+}
