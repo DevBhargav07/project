@@ -1,5 +1,7 @@
 import hashlib
+import enum
 
+from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Integer, ForeignKey, DateTime, func, Text
 from datetime import datetime
@@ -11,6 +13,32 @@ from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 
+#--------------------------------- Visibility level --------------------------------------------
+class VisibilityLevel(str, enum.Enum):
+    everyone = "everyone"
+    region = "region"
+    nobody = "nobody"
+
+#--------------------------------- Region Table ----------------------------------------------
+
+class Region(Base):
+    __tablename__ = "regions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), unique=True, index=True)
+
+    users: Mapped[List["User"]] = relationship(
+        secondary="user_regions", back_populates="regions"
+    )
+
+#---------------------------------- User Region Table ---------------------------------------
+class UserRegion(Base):
+    __tablename__ = "user_regions"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    region_id: Mapped[int] = mapped_column(ForeignKey("regions.id"), primary_key=True)
+
+#--------------------------------- User Table -----------------------------------------------
 class User(Base):
     __tablename__ = "users"
 
@@ -29,6 +57,13 @@ class User(Base):
     # many-to-many User <-> Permission, through the UserPermission association table
     permissions: Mapped[List["Permission"]] = relationship(
         secondary="user_permissions", back_populates="users"
+    )
+
+    visibility: Mapped[VisibilityLevel] = mapped_column(
+        SAEnum(VisibilityLevel), default=VisibilityLevel.nobody, server_default="nobody"
+    )
+    regions: Mapped[List["Region"]] = relationship(
+        secondary="user_regions", back_populates="users"
     )
 
     def verify_password(self, plain: str) -> bool:
