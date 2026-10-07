@@ -17,6 +17,7 @@ import UserDetail from "./pages/UserDetail";
 import GroupsAdmin from "./pages/GroupsAdmin";
 import RequirePermission from "./components/RequirePermission";
 import RequirePermissionOrSelf from "./components/RequirePermissionorSelf";
+import VisibilitySettings from "./pages/VisibilitySettings";
 
 // Every logged-in page (Dashboard, Users, ...) gets wrapped in this:
 // sidebar on the left, page content on the right. Add new protected
@@ -62,6 +63,16 @@ function App() {
                       <Users />
                     </AppLayout>
                   </RequirePermission>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat/"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <VisibilitySettings />
+                  </AppLayout>
                 </ProtectedRoute>
               }
             />
