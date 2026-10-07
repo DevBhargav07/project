@@ -92,3 +92,19 @@ class CreatePermission(BaseModel):
     name: str
     model_name: str
     description: Optional[str] = None
+
+#------------------- Regions -------------------------------
+class RegionOut(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        from_attributes = True
+
+class VisibilityUpdate(BaseModel):
+    visibility: str
+    region_ids: List[int] = []
+
+class MyVisibilityOut(BaseModel):
+    visibility: str
+    regions: List[RegionOut]
