@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import users
+from app.routers import users, chat
 from app.auth import auth
 from contextlib import asynccontextmanager
 from app.auth.permissions import ensure_crud_permissions, ensure_default_groups
@@ -32,3 +32,4 @@ app.add_middleware(
 
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(chat.router)
