@@ -108,3 +108,32 @@ class VisibilityUpdate(BaseModel):
 class MyVisibilityOut(BaseModel):
     visibility: str
     regions: List[RegionOut]
+
+#------------------ Chat ------------------------------------
+class ChatUserOut(BaseModel):
+    id: int
+    username: str
+
+    class Config:
+        from_attributes = True
+
+class MessageOut(BaseModel):
+    id: int
+    conversation_id: int
+    sender_id: int
+    content: str
+    sent_at: datetime
+    expires_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ConversationOut(BaseModel):
+    id: int
+    type: str
+    other_user: ChatUserOut
+    last_messasge: Optional[MessageOut] = None
+    unread_count: int = 0
+
+class OpenDirectRequest(BaseModel):
+    user_id: int
