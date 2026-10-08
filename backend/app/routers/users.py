@@ -37,6 +37,7 @@ async def get_my_profile(
     permissions = sorted({p.codename for g in user.groups for p in g.permissions})
 
     return {
+        "id": user.id,
         "username": user.username,
         "email": user.email,
         "created_at": user.created_at,

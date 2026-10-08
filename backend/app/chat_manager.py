@@ -41,7 +41,7 @@ class ConnectionManager:
             except Exception:
                 self.disconnect(user_id)
 
-manager = ConnectionError()
+manager = ConnectionManager()
 
 
 async def purge_expired_messages(interval_seconds: int = 600):
