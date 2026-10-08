@@ -131,3 +131,46 @@ class UserPermission(Base):
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     permission_id: Mapped[int] = mapped_column(ForeignKey("permissions.id"), primary_key=True)
+
+#------------------------------------ Chat --------------------------------------------------
+class Conversation(Base):
+    __tablename__ = "conversations"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    type: Mapped[str] = mapped_column(String(20), default="direct") # direct, group(todo)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    members: Mapped[List["ConversationMember"]] = relationship(
+        back_populates="conversation", cascade="all, delete-orphan"
+    )
+
+class ConversationMember(Base):
+    __tablename__ = "conversation_member"
+
+    conversation_id: Mapped[int] = mapped_column(
+        ForeignKey("conversations.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    role: Mapped[str] = mapped_column(String(20), default="member")
+    joined_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    last_read_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    conversation: Mapped["Conversation"] = relationship(back_populates="members")
+    user: Mapped["User"] = relationship()
+
+class Message(Base):
+    __tablename__ = "messages"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    conversation_id: Mapped["Conversation"] = mapped_column(
+        ForeignKey("conversations.id", ondelete="CASCADE"), index=True
+    )
+    sender_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    content: Mapped[str] = mapped_column(Text)
+    sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    # Stored per message, so a future "custom timer" feature is just a different
+    # value here, no schema change needed.
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
