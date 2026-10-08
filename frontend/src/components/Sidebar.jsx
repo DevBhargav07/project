@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -18,7 +19,8 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, permission: null },
   { to: "/users", label: "Users", icon: Users, permission: "view_users" },
   { to: "/admin/groups", label: "Groups & Permissions", icon: ShieldCheck, permission: "change_groups" },
-  { to: "/chat", label: "chat", icon: ShieldCheck, permission: "view_users"},
+  { to: "/chat", label: "Chat", icon: MessageCircle, permission: null },
+  { to: "/region/", label: "Region", icon: ShieldCheck, permission: "view_users"},
 ];
 
 export default function Sidebar() {
