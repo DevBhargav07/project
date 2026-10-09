@@ -81,6 +81,7 @@ async def _conversation_out(session: AsyncSession, conv: Conversation, me_id: in
         .order_by(Message.sent_at.desc())
         .limit(1)
     )
+
     unread_stmt = select(func.count(Message.id)).where(
         Message.conversation_id == conv.id,
         Message.sender_id != me_id,
@@ -133,8 +134,8 @@ async def list_conversations(
     )
     conversations = (await session.scalars(stmt)).all()
     rows = []
+
     for conv in conversations:
-        print(conv)
         row = await _conversation_out(session, conv, current_user.id)
         if row:
             rows.append(row)
