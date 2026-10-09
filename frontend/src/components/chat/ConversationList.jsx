@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { MessageCircle, Search, Settings2, Users } from "lucide-react";
 import Avatar from "./Avatar";
-import { formatTime } from "./chatUtils";
+import { formatTime, truncate } from "./chatUtils";
 
 const STATUS_LABEL = {
   open: "Connected",
@@ -91,6 +91,13 @@ export default function ConversationList({
                 c.last_message && new Date(c.last_message.expires_at) > new Date()
                   ? c.last_message
                   : null;
+
+              // In a 1-on-1 chat, a message is mine if the other person didn't send it.
+              const lastIsMine = last && last.sender_id !== c.other_user.id;
+              const preview = last
+                ? `${lastIsMine ? "You: " : ""}${truncate(last.content, 20)}`
+                : "No recent messages";
+
               return (
                 <button
                   key={c.id}
@@ -113,12 +120,8 @@ export default function ConversationList({
                       )}
                     </div>
                     <div className="chat-item-bottom">
-                      <span className="chat-item-preview">
-                        {last ? last.content : "No recent messages"}
-                      </span>
-                      {c.unread_count > 0 && (
-                        <span className="chat-badge">{c.unread_count}</span>
-                      )}
+                      <span className="chat-item-preview">{preview}</span>
+                      {c.unread_count > 0 && <span className="chat-badge">{c.unread_count}</span>}
                     </div>
                   </div>
                 </button>
