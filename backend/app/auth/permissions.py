@@ -131,7 +131,7 @@ async def ensure_crud_permissions(session: AsyncSession):
                 created_count += 1
 
     await session.commit()  # commit once, outside the loop
-    print(f"CRUD permissions ensured for {len(models)} models — {created_count} new permissions created.")
+    # print(f"CRUD permissions ensured for {len(models)} models — {created_count} new permissions created.")
 
 #-------------------------- AutoGenerating Groups ---------------------------------------
 async def ensure_default_groups(session: AsyncSession):
@@ -147,7 +147,7 @@ async def ensure_default_groups(session: AsyncSession):
         admin_group = Group(name="Admin")
         session.add(admin_group)
         await session.flush()
-        print("[GRANT] Created 'Admin' group")
+        # print("[GRANT] Created 'Admin' group")
 
     operator_group = await session.scalar(
         select(Group).where(Group.name=="Operator")
@@ -157,7 +157,7 @@ async def ensure_default_groups(session: AsyncSession):
         operator_group = Group(name="Operator")
         session.add(operator_group)
         session.flush()
-        print("[GRANT] Created 'Operator' group")
+        # print("[GRANT] Created 'Operator' group")
 
     all_perms = await session.scalars(select(Permission))
     for perm in all_perms:
@@ -191,7 +191,7 @@ async def ensure_default_groups(session: AsyncSession):
             ))
     
     await session.commit()
-    print("[Groups] Permissions assigned to default groups.")
+    # print("[Groups] Permissions assigned to default groups.")
 
     first_superuser = await session.scalar(
         select(User).where(User.is_superuser == True).order_by(User.id.asc())
@@ -209,4 +209,4 @@ async def ensure_default_groups(session: AsyncSession):
                 group_id=admin_group.id,
             ))
             await session.commit()
-            print(f"[Groups] Assigned '{first_superuser.username}' to Admin group.")
+            # print(f"[Groups] Assigned '{first_superuser.username}' to Admin group.")
