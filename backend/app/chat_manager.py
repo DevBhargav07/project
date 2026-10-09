@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 # The ONE place that decides how long messages live. Changing this value
 # (or making it per-conversation later) is all it takes.
-MESSAGE_TTL = timedelta(hours=24)
+MESSAGE_TTL = timedelta(days=7)
 
 
 class ConnectionManager:
@@ -44,7 +44,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-async def purge_expired_messages(interval_seconds: int = 600):
+async def purge_expired_messages(interval_seconds: int = 3600):
     """Background loop that physically deletes expired messages.
     Reads already hide expired messages instantly (see messaging.py),
     this just keeps the table from growing forever."""

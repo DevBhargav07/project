@@ -1,3 +1,4 @@
+import os
 import asyncio
 from fastapi import FastAPI
 from app.routers import users, chat, messaging
@@ -29,9 +30,9 @@ app = FastAPI(title="Project Backend Learning", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:4173"],
+    allow_origins=["http://localhost:5173", "http://localhost:4173", os.environ["FRONTEND_URL"]],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "PUT", "POST", "PATCH", "DELETE"],
     allow_headers=["*"]
 )
 
