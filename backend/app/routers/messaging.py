@@ -1,3 +1,4 @@
+import logging
 from typing import List
 from datetime import datetime, timezone
 from typing_extensions import Annotated
@@ -19,8 +20,11 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 
 session_dependency = Annotated[AsyncSession, Depends(get_async_session)]
 
+logger = logging.getLogger(__name__)
+
 def _now() -> datetime:
     return datetime.now(timezone.utc)
+
 
 #---------------------------------- helpers ----------------------------------------
 
@@ -77,7 +81,6 @@ async def _conversation_out(session: AsyncSession, conv: Conversation, me_id: in
         .order_by(Message.sent_at.desc())
         .limit(1)
     )
-
     unread_stmt = select(func.count(Message.id)).where(
         Message.conversation_id == conv.id,
         Message.sender_id != me_id,
@@ -102,6 +105,7 @@ async def _load_conversation(session: AsyncSession, conversation_id: int):
         select(Conversation)
         .where(Conversation.id == conversation_id)
         .options(selectinload(Conversation.members).selectinload(ConversationMember.user))
+        .execution_options(populate_existing=True)
     )
     return await session.scalar(stmt)
 
@@ -128,9 +132,9 @@ async def list_conversations(
         .options(selectinload(Conversation.members).selectinload(ConversationMember.user))
     )
     conversations = (await session.scalars(stmt)).all()
-
     rows = []
     for conv in conversations:
+        print(conv)
         row = await _conversation_out(session, conv, current_user.id)
         if row:
             rows.append(row)
@@ -246,32 +250,41 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(...)):
             if not content or not isinstance(conversation_id, int):
                 continue
 
-            async with AsyncSessionLocal() as session:
-                member_ids = (
-                    await session.scalars(
-                        select(ConversationMember.user_id).where(
-                            ConversationMember.conversation_id == conversation_id
+            try:
+                async with AsyncSessionLocal() as session:
+                    member_ids = (
+                        await session.scalars(
+                            select(ConversationMember.user_id).where(
+                                ConversationMember.conversation_id == conversation_id
+                            )
                         )
+                    ).all()
+
+                    if user_id not in member_ids:
+                        await websocket.send_json(
+                            {"type": "error", "detail": "You are not in this conversation"}
+                        )
+                        continue
+
+                    now = _now()
+                    message = Message(
+                        conversation_id=conversation_id,
+                        sender_id=user_id,
+                        content=content,
+                        sent_at=now,
+                        expires_at=now + MESSAGE_TTL,
                     )
-                ).all()
-
-                if user_id not in member_ids:
-                    await websocket.send_json({"type": "error", "detail": "You are not in this conversation"})
-                    continue
-
-                now = _now()
-                message = Message(
-                    conversation_id=conversation_id,
-                    sender_id=user_id,
-                    content=content,
-                    sent_at=now,
-                    expires_at=now + MESSAGE_TTL,
-                )
-                session.add(message)
-                await session.commit()
-                await session.refresh(message)
-                out = {"type": "message", "message": MessageOut.model_validate(message).model_dump(mode="json")}
-
+                    session.add(message)
+                    await session.commit()
+                    await session.refresh(message)
+                    out = {
+                        "type": "message",
+                        "message": MessageOut.model_validate(message).model_dump(mode="json"),
+                    }
+            except Exception:
+                logger.exception("Failed to save chat message")
+                await websocket.send_json({"type": "error", "detail": "Message could not be sent"})
+                continue
             # Send to everyone in the conversation, including the sender, so all
             # of the sender's open tabs stay in sync.
             for member_id in member_ids:
