@@ -11,9 +11,6 @@ wheels/
 .env
 *.env
 
-#alembic versions
-versions/
-
 # not adding the .db
 test.db
 *.db
