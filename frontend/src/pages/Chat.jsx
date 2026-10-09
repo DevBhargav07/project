@@ -13,9 +13,20 @@ import { getErrorMessage } from "../api/errors";
 import ConversationList from "../components/chat/ConversationList";
 import ChatWindow from "../components/chat/ChatWindow";
 
+// userId was never saved by the login flow.
+function getMyIdFromToken() {
+  try {
+    const token = localStorage.getItem("access_token");
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return Number(JSON.parse(atob(base64)).sub);
+  } catch {
+    return NaN;
+  }
+}
+
 export default function Chat() {
   const { userId } = useAuth();
-  const myId = Number(userId);
+  const myId = Number(userId) || getMyIdFromToken();
 
   const [conversations, setConversations] = useState([]);
   const [people, setPeople] = useState([]);
@@ -49,6 +60,8 @@ export default function Chat() {
       setMessagesByConv((prev) => ({ ...prev, [conversationId]: res.data }));
     } catch (error) {
       toast.error(getErrorMessage(error, "Failed to load messages"));
+      // Stop the "Loading..." state so the chat is still usable
+      setMessagesByConv((prev) => (prev[conversationId] ? prev : { ...prev, [conversationId]: [] }));
     }
   }, []);
 
@@ -91,8 +104,11 @@ export default function Chat() {
       // Add to the open message list (skip duplicates)
       setMessagesByConv((prev) => {
         const existing = prev[convId];
-        if (!existing || existing.some((m) => m.id === msg.id)) return prev;
-        return { ...prev, [convId]: [...existing, msg] };
+        // Not loaded and not open: skip it, the history fetch will include it.
+        if (!existing && activeIdRef.current !== convId) return prev;
+        const list = existing || [];
+        if (list.some((m) => m.id === msg.id)) return prev;
+        return { ...prev, [convId]: [...list, msg] };
       });
 
       // Someone started a brand-new chat with us: fetch it.
