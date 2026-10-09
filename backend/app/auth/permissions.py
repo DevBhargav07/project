@@ -156,7 +156,7 @@ async def ensure_default_groups(session: AsyncSession):
     if not operator_group:
         operator_group = Group(name="Operator")
         session.add(operator_group)
-        session.flush()
+        await session.flush()
         # print("[GRANT] Created 'Operator' group")
 
     all_perms = await session.scalars(select(Permission))
