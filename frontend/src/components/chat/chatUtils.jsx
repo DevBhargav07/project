@@ -12,3 +12,8 @@ export function dayLabel(iso) {
   if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
   return date.toLocaleDateString();
 }
+export function truncate(text, max = 20) {
+  const clean = String(text).replace(/\s+/g, " ").trim();
+  const chars = Array.from(clean);
+  return chars.length <= max ? clean : chars.slice(0, max).join("") + "...";
+}
