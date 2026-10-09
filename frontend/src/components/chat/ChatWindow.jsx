@@ -92,7 +92,7 @@ export default function ChatWindow({
       <div className="chat-messages">
         <div className="chat-note">
           <Clock size={13} />
-          Messages in this chat are deleted 24 hours after they are sent.
+          Messages in this chat are deleted 7 days after they are sent.
         </div>
 
         {loading && visible.length === 0 && (
