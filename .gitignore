@@ -10,8 +10,6 @@ wheels/
 .venv
 .env
 *.env
-.lock
-*.lock
 
 #alembic versions
 versions/
