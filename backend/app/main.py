@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from app.auth.permissions import ensure_crud_permissions, ensure_default_groups
 from app.database import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from app.config import settings
 
 origins = [o.strip().rstrip("/") for o in settings.cors_origins.split(",") if o.strip()]
@@ -29,13 +30,15 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 app = FastAPI(title="Project Backend Learning", lifespan=lifespan)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
+    max_age=720
 )
 
 app.include_router(users.router)
