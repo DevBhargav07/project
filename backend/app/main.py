@@ -14,6 +14,7 @@ frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
 allowed_origins = [
     "http://localhost:5173",
     "http://localhost:4173",
+    "https://project-7cqj.onrender.com/"
 ]
 
 @asynccontextmanager
