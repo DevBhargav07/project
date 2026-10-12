@@ -14,7 +14,8 @@ frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
 allowed_origins = [
     "http://localhost:5173",
     "http://localhost:4173",
-    "https://project-7cqj.onrender.com/"
+    "https://project-chat-app-alpha.vercel.app/"
+    "https://project-chat-app-git-main-team-solo10.vercel.app/",
 ]
 
 @asynccontextmanager
