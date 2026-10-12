@@ -9,7 +9,7 @@ export default function NotFound() {
       <h1>404</h1>
       <p>The page you're looking for doesn't exist.</p>
       {/* Send logged-in users to the dashboard, logged-out users to login */}
-      <Link to={isAuthenticated ? "/dashboard" : "/login"} className="notfound-link">
+      <Link to={isAuthenticated ? "/dashboard" : "/"} className="notfound-link">
         {isAuthenticated ? "Go to Dashboard" : "Go to Login"}
       </Link>
     </div>
