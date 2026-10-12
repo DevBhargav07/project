@@ -54,7 +54,7 @@ export default function Register() {
     try {
       await registerUser(formData.username, formData.email, formData.password);
       toast.success("Account created! Please log in.");
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       const data = error.response?.data;
       let message = "Registration failed. Please try again.";
@@ -191,7 +191,7 @@ export default function Register() {
         <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
           Already have an account?{" "}
           <Link
-            to="/login"
+            to="/"
             className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
           >
             Sign in
