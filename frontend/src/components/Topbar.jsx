@@ -32,7 +32,7 @@ export default function Topbar() {
     setDropdownOpen(false);
     logout();
     toast.info("You have been logged out");
-    navigate("/login");
+    navigate("/");
   };
 
   return (
