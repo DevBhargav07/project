@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children }) {
   if (!isAuthenticated) {
     // Remember where they were trying to go (e.g. /users) in route "state".
     // Login.jsx reads this back after a successful login.
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    return <Navigate to="/" state={{ from: location.pathname }} replace />;
   }
 
   return children;
