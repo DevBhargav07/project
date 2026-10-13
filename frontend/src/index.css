@@ -1796,16 +1796,16 @@ body:has(.navbar) {
     animation: none;
   }
 }
-
 /* ---------- Phones / narrow screens: one pane at a time ---------- */
 @media (max-width: 860px) {
   .chat-shell {
     grid-template-columns: 1fr;
     margin: 0;
     height: calc(100vh - 56px);
+    height: calc(100dvh - 56px);   /* dvh follows the phone's moving address bar */
+    border: none;
     border-radius: 0;
-    border-left: none;
-    border-right: none;
+    box-shadow: none;
   }
   .chat-window {
     display: none;
@@ -1819,7 +1819,155 @@ body:has(.navbar) {
   .chat-back-btn {
     display: flex;
   }
-  .chat-bubble {
-    max-width: 82%;
+
+  /* list screen */
+  .chat-list-header { padding: 14px 14px 6px; }
+  .chat-tabs { margin: 4px 14px 10px; }
+  .chat-search { margin: 0 14px 8px; }
+  .chat-items {
+    padding: 4px 6px 12px;
+    -webkit-overflow-scrolling: touch;
   }
+  .chat-item {
+    padding: 12px 10px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* conversation screen */
+  .chat-window-header { padding: 8px 10px; gap: 8px; }
+  .chat-window-header > div { min-width: 0; }
+  .chat-window-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .chat-messages {
+    padding: 12px;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chat-note {
+    max-width: 92%;
+    border-radius: 14px;
+    font-size: 11px;
+    text-align: center;
+  }
+  .chat-bubble {
+    max-width: 84%;
+    font-size: 15px;
+  }
+  .chat-composer {
+    gap: 8px;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+  }
+  .chat-send-btn { -webkit-tap-highlight-color: transparent; }
+
+  /* an open conversation uses the whole screen */
+  body.chat-immersive { overflow: hidden; }
+  body.chat-immersive .topbar { display: none; }
+  body.chat-immersive .chat-shell {
+    height: 100vh;
+    height: 100dvh;
+  }
+}
+
+/* ==========================================================================
+   Mobile layout (everything except the chat screens, which are above)
+   ========================================================================== */
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.topbar-menu-btn {
+  display: none;   /* only shown on phones */
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  top: 56px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 55;
+  background: rgba(0, 0, 0, 0.45);
+  animation: backdrop-in 0.2s ease-out;
+}
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 860px) {
+  /* 16px inputs stop iPhones from zooming the page when you tap a field */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  .topbar { padding: 0 12px; }
+  .topbar-menu-btn { display: flex; }
+
+  /* sidebar becomes a slide-in drawer */
+  .sidebar {
+    position: fixed;
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    width: 250px;
+    height: auto;
+    padding: 16px 12px;
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .sidebar-mobile-open {
+    transform: translateX(0);
+    box-shadow: 8px 0 30px rgba(0, 0, 0, 0.25);
+  }
+  .sidebar-toggle-btn { display: none; }
+
+  /* pages */
+  .app-main .page-content {
+    margin: 12px;
+    padding: 18px 16px;
+    border-radius: 12px;
+  }
+  .page-content h1 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  .profile-row {
+    flex-wrap: wrap;
+    gap: 2px 12px;
+  }
+  .users-table th,
+  .users-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+  .modal-overlay { padding: 12px; }
+  .modal-card { padding: 16px; }
+}
+
+@media (max-width: 560px) {
+  /* drop the "Created" column so the users table fits */
+  .users-table th:nth-child(3),
+  .users-table td:nth-child(3) {
+    display: none;
+  }
+  .admin-form-row { grid-template-columns: 1fr; }
+  .region-add-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .region-row {
+    gap: 10px;
+    padding: 10px;
+  }
+  .profile-edit-actions { flex-wrap: wrap; }
+  .notfound-page h1 { font-size: 56px; }
 }
