@@ -138,7 +138,7 @@ export default function Login() {
           {loading ? "Signing in..." : "Sign in"}
         </button>
 
-        <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+        {/* <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
           Don't have an account?{" "}
           <Link
             to="/signup"
@@ -146,7 +146,7 @@ export default function Login() {
           >
             Sign up
           </Link>
-        </p>
+        </p> */}
       </form>
     </div>
   );
