@@ -89,6 +89,12 @@ export default function Chat() {
     };
   }, []);
 
+  // On phones an open conversation goes full-screen (CSS hides the top bar).
+  useEffect(() => {
+    document.body.classList.toggle("chat-immersive", Boolean(activeId));
+    return () => document.body.classList.remove("chat-immersive");
+  }, [activeId]);
+
   // Everything the server pushes to us arrives here.
   const handleSocketMessage = useCallback(
     (event) => {
