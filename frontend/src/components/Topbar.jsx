@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Moon, Sun, UserCircle, User, LogOut } from "lucide-react";
+import { Menu, Moon, Sun, UserCircle, User, LogOut } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 
-export default function Topbar() {
+
+export default function Topbar({ onMenuClick }) {
   const { theme, toggleTheme } = useTheme();
   const { username, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -37,7 +38,17 @@ export default function Topbar() {
 
   return (
     <header className="topbar">
-      <div className="topbar-brand">MyApp</div>
+      <div className="topbar-left">
+        <button
+          type="button"
+          className="topbar-icon-btn topbar-menu-btn"
+          onClick={onMenuClick}
+          aria-label="Open menu"
+        >
+          <Menu size={20} />
+        </button>
+        <div className="topbar-brand">MyApp</div>
+      </div>
 
       <div className="topbar-actions">
         <button
