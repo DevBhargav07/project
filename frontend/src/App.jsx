@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
+import { useState } from "react";
 
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -24,11 +25,16 @@ import Chat from "./pages/Chat";
 // sidebar on the left, page content on the right. Add new protected
 // pages by wrapping them the same way in the Routes below.
 function AppLayout({ children }) {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   return (
     <div className="app-shell">
-      <Topbar />
+      <Topbar onMenuClick={() => setMobileNavOpen((open) => !open)} />
       <div className="app-layout">
-        <Sidebar />
+        <Sidebar
+          mobileOpen={mobileNavOpen}
+          onMobileClose={() => setMobileNavOpen(false)}
+        />
         <main className="app-main">{children}</main>
       </div>
     </div>
@@ -67,16 +73,6 @@ function App() {
               }
             />
             <Route
-              path="/region/"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <VisibilitySettings />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/chat"
               element={
                 <ProtectedRoute>
@@ -105,6 +101,16 @@ function App() {
                       <UserDetail />
                     </AppLayout>
                   </RequirePermissionOrSelf>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/regions/"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <VisibilitySettings />
+                  </AppLayout>
                 </ProtectedRoute>
               }
             />
