@@ -7,13 +7,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_async_session
 from app.models import User, Region, VisibilityLevel
-from app.schemas import RegionOut, VisibilityUpdate, MyVisibilityOut
+from app.schemas import RegionOut, VisibilityUpdate, MyVisibilityOut, HealthResponse
 from app.auth.permissions import IsAuthenticated
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 session_dependency = Annotated[AsyncSession, Depends(get_async_session)]
 
+@router.api_route("/health", methods=["GET", "HEAD"], response_model=HealthResponse)
+async def health_check():
+    return {"response": "ok"}
 
 @router.get("/regions", response_model=List[RegionOut])
 async def list_regions(session: session_dependency):
