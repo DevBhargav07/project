@@ -137,3 +137,6 @@ class ConversationOut(BaseModel):
 
 class OpenDirectRequest(BaseModel):
     user_id: int
+
+class HealthResponse(BaseModel):
+    response: str
