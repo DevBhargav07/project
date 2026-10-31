@@ -1,4 +1,4 @@
-# Project
+# Chat_Application
 
 A full-stack web application built as a learning project for backend architecture, authentication, authorization, database design, and modern frontend development.
 
